@@ -1,188 +1,276 @@
-# Tablero Scrum - pos-system-cc-2026
+# Tablero Scrum / Kanban - pos-system-cc-2026
 
-Fecha de creación: 25 de mayo de 2026  
-Líder de grupo / Product Owner: Cristóbal Mundaca  
-Repositorio: `cristobalMundacaV/pos-system-cc-2026`
-
----
-
-## 1. Objetivo del proyecto
-
-Desarrollar un sistema POS para operación comercial/restaurante, organizado como proyecto grupal bajo metodología Scrum. El sistema debe permitir gestionar productos, pedidos, ventas, caja, mesas, roles de usuario, reportes y una base preparada para despliegue en AWS.
+Fecha: 25 de mayo de 2026  
+Líder / Product Owner: Cristóbal Mundaca  
+Proyecto: Sistema POS - Evaluación Cloud Computing
 
 ---
 
-## 2. Roles sugeridos del equipo
+## 1. Contexto real del proyecto
 
-| Rol Scrum / Técnico | Responsable | Función principal |
-|---|---|---|
-| Product Owner / Líder | Cristóbal Mundaca | Definir alcance, priorizar tareas, revisar avances y validar entregables. |
-| Scrum Master | Por asignar | Coordinar reuniones, desbloquear problemas y mantener el tablero actualizado. |
-| Backend Developer | Por asignar | Modelos, API, reglas de negocio, autenticación, roles y permisos. |
-| Frontend Developer | Por asignar | Pantallas, formularios, flujo POS, experiencia de usuario y validaciones visuales. |
-| QA / Documentación | Por asignar | Pruebas, evidencias, manual de usuario, capturas y presentación final. |
-| DevOps / AWS | Por asignar | Entorno, variables, despliegue, configuración de servicios y documentación técnica. |
+Este repositorio ya contiene un sistema POS base con:
+
+- `backend/`: API REST en Node.js + Express.
+- `frontend/`: aplicación Next.js 14.
+- `database/`: schema, seed y script de creación de usuarios.
+- PostgreSQL como base de datos.
+- Autenticación JWT con roles `admin` y `cajero`.
+
+El objetivo del trabajo no es crear el POS desde cero, sino analizar sus limitaciones actuales y migrarlo/mejorarlo para una arquitectura cloud moderna, segura, disponible y evaluable.
 
 ---
 
-## 3. Estados del tablero
+## 2. Objetivo de la evaluación
 
-| Estado | Criterio |
+Transformar el monolito POS base en una solución preparada para cloud, resolviendo o documentando los problemas intencionales del sistema:
+
+- Seguridad.
+- Disponibilidad.
+- Almacenamiento.
+- Observabilidad.
+- Configuración por entorno.
+- Despliegue funcional.
+- Evidencia de avance usando Scrum/Kanban.
+
+---
+
+## 3. Columnas del tablero Kanban
+
+Usar estas columnas en GitHub Projects, Trello o cualquier tablero Kanban:
+
+| Columna | Significado |
 |---|---|
-| Backlog | Tarea definida, pero aún no comprometida para el sprint actual. |
-| To Do | Tarea seleccionada para trabajar durante el sprint. |
+| Backlog | Tareas identificadas, pero aún no tomadas por el equipo. |
+| To Do | Tareas comprometidas para el sprint actual. |
 | In Progress | Tarea en desarrollo activo. |
-| Review / Testing | Tarea terminada técnicamente, en revisión, prueba o validación. |
+| Review / Testing | Tarea terminada técnicamente, esperando revisión, prueba o evidencia. |
 | Done | Tarea validada, documentada y lista para entrega. |
 
 ---
 
-## 4. Backlog priorizado
+## 4. Roles sugeridos
 
-| ID | Tarea | Prioridad | Sprint sugerido | Responsable | Estado |
-|---|---|---:|---|---|---|
-| CC-01 | Definir alcance, módulos y criterios de aceptación del sistema POS | Alta | Sprint 0 | Líder / QA | To Do |
-| CC-02 | Diseñar arquitectura general y modelo de datos base | Alta | Sprint 0 | Backend | Backlog |
-| CC-03 | Configurar estructura inicial del proyecto, entorno local y repositorio | Alta | Sprint 0 | Backend / DevOps | Backlog |
-| CC-04 | Implementar autenticación, roles y permisos | Alta | Sprint 1 | Backend | Backlog |
-| CC-05 | Implementar gestión de productos, categorías, precios y descuentos | Alta | Sprint 1 | Backend / Frontend | Backlog |
-| CC-06 | Implementar POS mostrador para crear pedidos rápidos | Alta | Sprint 1 | Frontend / Backend | Backlog |
-| CC-07 | Implementar módulo de mesas, pedidos y estados operacionales | Alta | Sprint 2 | Frontend / Backend | Backlog |
-| CC-08 | Implementar flujo cocina/barra/KDS y separación de estados listo/servido | Media | Sprint 2 | Backend / Frontend | Backlog |
-| CC-09 | Implementar caja, ventas, pagos y cierre de caja | Alta | Sprint 2 | Backend / Frontend | Backlog |
-| CC-10 | Implementar dashboard BI, reportes, proyecciones y simulador demo | Media | Sprint 3 | Frontend / Backend | Backlog |
-| CC-11 | Preparar despliegue en AWS, variables de entorno y documentación técnica | Alta | Sprint 3 | DevOps | Backlog |
-| CC-12 | Ejecutar QA, evidencias, manual de usuario y presentación final | Alta | Sprint 3 | QA / Líder | Backlog |
+| Rol | Responsable | Función |
+|---|---|---|
+| Product Owner / Líder | Cristóbal Mundaca | Prioriza tareas, valida entregables y coordina el avance. |
+| Scrum Master | Por asignar | Mantiene el tablero actualizado y detecta bloqueos. |
+| Backend | Por asignar | Seguridad API, validaciones, JWT, health check, logging. |
+| Frontend | Por asignar | Configuración de frontend, consumo API, sesión segura y pruebas visuales. |
+| Database / DevOps | Por asignar | PostgreSQL cloud, SSL, variables, despliegue y alta disponibilidad. |
+| QA / Documentación | Por asignar | Evidencias, pruebas, bitácora, presentación y checklist final. |
 
 ---
 
-## 5. Plan de sprints
+## 5. Backlog priorizado basado en TODO reales
 
-### Sprint 0 - Organización y base del proyecto
-
-Objetivo: dejar claro qué se va a construir, cómo se organizará el equipo y cuál será la estructura técnica inicial.
-
-Tareas principales:
-- CC-01 Definir alcance y criterios de aceptación.
-- CC-02 Diseñar arquitectura y modelo de datos.
-- CC-03 Configurar estructura inicial del proyecto.
-
-Entregable del sprint:
-- Backlog inicial aprobado.
-- Repositorio organizado.
-- Modelo base definido.
-- Roles asignados.
-
-### Sprint 1 - Núcleo del POS
-
-Objetivo: construir la base funcional del sistema.
-
-Tareas principales:
-- CC-04 Autenticación, roles y permisos.
-- CC-05 Productos, categorías, precios y descuentos.
-- CC-06 POS mostrador.
-
-Entregable del sprint:
-- Usuario puede iniciar sesión.
-- Usuario autorizado puede administrar productos.
-- Usuario autorizado puede crear un pedido desde POS mostrador.
-
-### Sprint 2 - Operación del restaurante / venta
-
-Objetivo: cubrir el flujo operacional completo de atención, preparación y cobro.
-
-Tareas principales:
-- CC-07 Mesas, pedidos y estados.
-- CC-08 Cocina/barra/KDS.
-- CC-09 Caja, ventas y pagos.
-
-Entregable del sprint:
-- Pedido pasa por estados operacionales.
-- Caja registra ventas y pagos.
-- Flujo mesero/cocina/caja queda validado.
-
-### Sprint 3 - Inteligencia, despliegue y cierre
-
-Objetivo: cerrar el proyecto con reportes, despliegue, QA y presentación.
-
-Tareas principales:
-- CC-10 BI, reportes, proyecciones y simulador.
-- CC-11 Despliegue AWS.
-- CC-12 QA, evidencias y documentación.
-
-Entregable del sprint:
-- Sistema demostrable.
-- Evidencias completas.
-- Manual/documentación final.
-- Presentación lista para evaluación.
+| ID | Tarea | Área | Prioridad | Sprint | Responsable | Estado |
+|---|---|---|---|---|---|---|
+| CC-01 | Levantar sistema local completo y documentar instalación | Organización | Alta | Sprint 0 | QA / DevOps | To Do |
+| CC-02 | Crear tablero Kanban/Scrum y registrar responsables | Gestión | Alta | Sprint 0 | Líder / Scrum Master | To Do |
+| CC-03 | Analizar arquitectura actual y crear diagrama monolítico base | Arquitectura | Alta | Sprint 0 | Líder / DevOps | To Do |
+| CC-04 | Diseñar arquitectura cloud objetivo | Arquitectura | Alta | Sprint 0 | DevOps / Líder | To Do |
+| CC-05 | Eliminar fallback de credenciales hardcodeadas en PostgreSQL | Seguridad | Alta | Sprint 1 | Backend / DevOps | Backlog |
+| CC-06 | Configurar conexión PostgreSQL mediante variables de entorno obligatorias | Configuración | Alta | Sprint 1 | Backend / DevOps | Backlog |
+| CC-07 | Habilitar SSL/TLS para base de datos en producción | Seguridad / BD | Alta | Sprint 1 | Database / DevOps | Backlog |
+| CC-08 | Restringir CORS usando `FRONTEND_URL` | Seguridad | Alta | Sprint 1 | Backend | Backlog |
+| CC-09 | Revisar JWT_SECRET y eliminar secretos temporales en producción | Seguridad | Alta | Sprint 1 | Backend / DevOps | Backlog |
+| CC-10 | Implementar validación de inputs con `express-validator` | Seguridad | Alta | Sprint 1 | Backend | Backlog |
+| CC-11 | Implementar rate limiting para proteger la API | Seguridad | Media | Sprint 1 | Backend | Backlog |
+| CC-12 | Evaluar almacenamiento de token y documentar mejora con cookies HttpOnly | Seguridad Frontend | Media | Sprint 1 | Frontend | Backlog |
+| CC-13 | Implementar endpoint `GET /health` con validación de conexión a BD | Disponibilidad | Alta | Sprint 2 | Backend | Backlog |
+| CC-14 | Agregar lógica de manejo/reintento ante caída de base de datos | Disponibilidad | Media | Sprint 2 | Backend / DevOps | Backlog |
+| CC-15 | Definir estrategia de alta disponibilidad: ECS/EC2/containers/PM2 | Disponibilidad | Alta | Sprint 2 | DevOps | Backlog |
+| CC-16 | Migrar imágenes locales de `backend/uploads/` a S3 o alternativa cloud | Almacenamiento | Alta | Sprint 2 | Backend / DevOps | Backlog |
+| CC-17 | Configurar variables cloud para bucket, región y credenciales seguras | Almacenamiento | Alta | Sprint 2 | DevOps | Backlog |
+| CC-18 | Reemplazar `console.log` por logging estructurado con Winston o Pino | Observabilidad | Media | Sprint 2 | Backend | Backlog |
+| CC-19 | Definir estrategia de monitoreo: CloudWatch, métricas o logs centralizados | Observabilidad | Media | Sprint 2 | DevOps / QA | Backlog |
+| CC-20 | Integrar gestión de secretos: AWS Secrets Manager o alternativa equivalente | Configuración | Alta | Sprint 3 | DevOps | Backlog |
+| CC-21 | Preparar variables de entorno para producción backend/frontend | Configuración | Alta | Sprint 3 | DevOps / Frontend | Backlog |
+| CC-22 | Desplegar backend, frontend y base de datos en ambiente cloud | Despliegue | Alta | Sprint 3 | DevOps / Equipo | Backlog |
+| CC-23 | Verificar URL funcional del sistema desplegado | QA | Alta | Sprint 3 | QA / Líder | Backlog |
+| CC-24 | Crear evidencias: capturas, commits, pruebas y decisiones técnicas | Documentación | Alta | Sprint 3 | QA / Líder | Backlog |
+| CC-25 | Preparar presentación final: problema, arquitectura, decisiones y demo | Presentación | Alta | Sprint 3 | Líder / Equipo | Backlog |
 
 ---
 
-## 6. Definition of Done
+## 6. Sprints sugeridos
 
-Una tarea solo pasa a `Done` cuando cumple:
+### Sprint 0 - Organización, diagnóstico y arquitectura
 
-- Código implementado y subido al repositorio.
-- Funcionalidad probada manualmente.
-- No rompe el flujo principal del sistema.
-- Tiene evidencia si corresponde: captura, commit, comentario o prueba.
-- Está vinculada a un issue o identificador de tarea.
-- Fue revisada por el líder o por otro integrante del equipo.
+Objetivo: entender el sistema base, levantarlo localmente y organizar el trabajo.
+
+Tareas:
+- CC-01 Levantar sistema local.
+- CC-02 Crear tablero Kanban/Scrum.
+- CC-03 Diagrama monolítico actual.
+- CC-04 Diagrama cloud objetivo.
+
+Entregable:
+- Sistema local funcionando.
+- Tablero visible para evaluación.
+- Roles definidos.
+- Diagrama inicial y diagrama objetivo.
+
+### Sprint 1 - Seguridad y configuración base
+
+Objetivo: eliminar riesgos evidentes de seguridad y dejar configuración preparada para producción.
+
+Tareas:
+- CC-05 Credenciales sin fallback hardcodeado.
+- CC-06 Variables obligatorias para PostgreSQL.
+- CC-07 SSL/TLS para BD.
+- CC-08 CORS restringido.
+- CC-09 JWT_SECRET seguro.
+- CC-10 Validaciones de inputs.
+- CC-11 Rate limiting.
+- CC-12 Evaluación token/cookies HttpOnly.
+
+Entregable:
+- Backend más seguro.
+- Variables documentadas.
+- Evidencia de pruebas de seguridad básica.
+
+### Sprint 2 - Disponibilidad, almacenamiento y observabilidad
+
+Objetivo: preparar el sistema para operar en cloud con varios servicios y monitoreo básico.
+
+Tareas:
+- CC-13 Health check.
+- CC-14 Manejo ante caída de BD.
+- CC-15 Estrategia de alta disponibilidad.
+- CC-16 Migración uploads a S3/cloud storage.
+- CC-17 Variables cloud de almacenamiento.
+- CC-18 Logging estructurado.
+- CC-19 Monitoreo/logs centralizados.
+
+Entregable:
+- Sistema preparado para balanceador/orquestador.
+- Almacenamiento desacoplado del disco local.
+- Logs útiles para diagnóstico.
+
+### Sprint 3 - Despliegue, QA y cierre
+
+Objetivo: dejar el proyecto desplegado, documentado y listo para defensa.
+
+Tareas:
+- CC-20 Secrets Manager o alternativa.
+- CC-21 Variables producción backend/frontend.
+- CC-22 Despliegue cloud.
+- CC-23 URL funcional validada.
+- CC-24 Evidencias completas.
+- CC-25 Presentación final.
+
+Entregable:
+- URL funcional.
+- Repositorio actualizado.
+- Bitácora Scrum/Kanban.
+- Presentación final con demo.
 
 ---
 
-## 7. Reglas de trabajo del equipo
+## 7. Definition of Done
 
-- Cada integrante trabaja sobre una rama propia o rama por feature.
-- Ningún cambio importante se sube directo a `main` sin revisión.
-- Cada tarea debe tener responsable, estado y evidencia.
-- Las dudas bloqueantes se comunican rápido, no al final del sprint.
-- Las tareas grandes se dividen antes de empezar a programar.
-- El tablero se actualiza al terminar cada sesión de trabajo.
+Una tarea solo pasa a `Done` si cumple:
 
----
-
-## 8. Reuniones Scrum sugeridas
-
-| Reunión | Duración | Objetivo |
-|---|---:|---|
-| Sprint Planning | 20-30 min | Elegir tareas del sprint y asignar responsables. |
-| Daily breve | 5-10 min | Revisar qué hizo cada uno, qué hará y qué bloqueo tiene. |
-| Sprint Review | 15-20 min | Mostrar avances funcionando. |
-| Retrospective | 10-15 min | Mejorar la forma de trabajo del equipo. |
+- Código o documento subido al repositorio.
+- Prueba manual realizada.
+- Evidencia agregada: captura, commit, nota técnica o enlace.
+- Impacto explicado en lenguaje simple.
+- No rompe login, POS, productos, clientes, ventas ni reportes.
+- Fue revisada por el líder o por otro integrante.
 
 ---
 
-## 9. Comandos Git sugeridos para el equipo
+## 8. Cómo crear el tablero Kanban en GitHub Projects
+
+1. Abrir el repositorio en GitHub.
+2. Ir a la pestaña `Projects`.
+3. Presionar `New project`.
+4. Elegir plantilla `Board`.
+5. Nombre recomendado: `POS Cloud Scrum 2026`.
+6. Crear estas columnas:
+   - Backlog
+   - To Do
+   - In Progress
+   - Review / Testing
+   - Done
+7. Crear tarjetas usando los IDs CC-01 a CC-25 de este documento.
+8. Asignar responsable a cada tarjeta.
+9. Mover tarjetas según avance real.
+10. Tomar capturas del tablero para la bitácora de evaluación.
+
+Nota: si los Issues están desactivados en el repositorio, se pueden usar `Draft items` dentro de GitHub Projects o activar Issues desde `Settings > Features > Issues`.
+
+---
+
+## 9. Cómo crear el tablero Kanban en Trello
+
+1. Entrar a Trello.
+2. Crear tablero nuevo llamado `POS Cloud Scrum 2026`.
+3. Crear listas:
+   - Backlog
+   - To Do
+   - In Progress
+   - Review / Testing
+   - Done
+4. Crear una tarjeta por cada tarea CC-01 a CC-25.
+5. Dentro de cada tarjeta agregar:
+   - Responsable.
+   - Descripción.
+   - Checklist.
+   - Evidencia o link a commit.
+6. Compartir el tablero con el equipo.
+7. Usar capturas del tablero como evidencia.
+
+---
+
+## 10. Formato recomendado de tarjeta
+
+```markdown
+## Objetivo
+Explicar qué se debe lograr.
+
+## Actividades
+- Acción 1
+- Acción 2
+- Acción 3
+
+## Criterios de aceptación
+- Se cumple X condición.
+- Existe evidencia.
+- Fue probado local o cloud.
+
+## Evidencia
+- Commit:
+- Captura:
+- Comentario técnico:
+```
+
+---
+
+## 11. Reglas de trabajo del equipo
+
+- Nadie trabaja sin tarjeta asignada.
+- Toda tarea debe tener evidencia.
+- Si una tarea se bloquea, se comenta en la tarjeta.
+- El líder revisa antes de pasar a `Done`.
+- Los commits deben mencionar el ID de tarea cuando sea posible.
+
+Ejemplo:
 
 ```bash
-git checkout -b feature/cc-01-alcance
-# trabajar cambios
+git checkout -b feature/cc-13-health-check
 git add .
-git commit -m "docs: definir alcance inicial del POS"
-git push origin feature/cc-01-alcance
-```
-
-Formato recomendado de commits:
-
-```text
-tipo: descripción corta
-```
-
-Ejemplos:
-
-```text
-feat: agregar modulo de productos
-fix: corregir estado de pedido servido
-docs: actualizar tablero scrum
-test: agregar pruebas de caja
+git commit -m "feat(CC-13): implementar endpoint de health check"
+git push origin feature/cc-13-health-check
 ```
 
 ---
 
-## 10. Próxima acción inmediata
+## 12. Entregables finales
 
-1. Asignar responsables reales a cada rol.
-2. Mover CC-01, CC-02 y CC-03 a `To Do`.
-3. Crear ramas por tarea.
-4. Trabajar Sprint 0 antes de programar módulos grandes.
+- Diagrama de arquitectura cloud detallado.
+- Repositorio GitHub actualizado.
+- URL funcional del sistema desplegado.
+- Bitácora de avances con tablero Scrum/Kanban.
+- Presentación final: problemática, arquitectura propuesta, decisiones técnicas y demo.
