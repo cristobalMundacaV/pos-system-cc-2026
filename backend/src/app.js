@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const pool = require('./config/database');
 
 const authRoutes     = require('./routes/auth');
 const productRoutes  = require('./routes/products');
@@ -15,9 +16,14 @@ const evalRoutes     = require('./routes/eval');
 const app = express();
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
-// ⚠️ TODO: En producción restringir a dominios específicos:
-//   app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
-app.use(cors()); // Permite todos los orígenes — NO recomendado en producción
+// ✅ SEGURIDAD: CORS restringido a origen específico
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 
 // ─── PARSERS ─────────────────────────────────────────────────────────────────
 app.use(express.json());
@@ -28,19 +34,35 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // ─── HEALTH CHECK ────────────────────────────────────────────────────────────
-// TODO: Implementar endpoint de health check para:
-//   - Load Balancers (ALB, NGINX, etc.)
-//   - Orquestadores de contenedores (ECS, Kubernetes)
-//   - Servicios de monitoreo
-//
-// app.get('/health', async (req, res) => {
-//   try {
-//     await pool.query('SELECT 1');
-//     res.json({ status: 'ok', db: 'ok', timestamp: new Date() });
-//   } catch {
-//     res.status(503).json({ status: 'error', db: 'unreachable' });
-//   }
-// });
+// ✅ DISPONIBILIDAD: Endpoint requerido para Load Balancers, ECS, Kubernetes, etc.
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// ─── ROOT ENDPOINT ───────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({ 
+    name: 'POS System API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: 'GET /health',
+      auth: 'POST /api/auth/login',
+      products: 'GET /api/products',
+      categories: 'GET /api/categories',
+      clients: 'GET /api/clients',
+      sales: 'GET /api/sales',
+      reports: 'GET /api/reports',
+      users: 'GET /api/users'
+    },
+    frontend: 'http://localhost:3000',
+    note: 'La interfaz gráfica está disponible en http://localhost:3000'
+  });
+});
 
 // ─── RUTAS ───────────────────────────────────────────────────────────────────
 app.use('/api/auth',       authRoutes);
