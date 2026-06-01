@@ -12,6 +12,8 @@ const saleRoutes     = require('./routes/sales');
 const reportRoutes   = require('./routes/reports');
 const userRoutes     = require('./routes/users');
 const evalRoutes     = require('./routes/eval');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
@@ -23,7 +25,24 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
-app.use(cors(corsOptions));
+app.use(helmet());
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+}));
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Demasiadas solicitudes desde esta IP. Intenta nuevamente más tarde.',
+  },
+});
+
+app.use('/api', apiLimiter);
 
 // ─── PARSERS ─────────────────────────────────────────────────────────────────
 app.use(express.json());

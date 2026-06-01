@@ -38,7 +38,7 @@ const login = async (req, res) => {
     // TODO: Usar process.env.JWT_SECRET y process.env.JWT_EXPIRES_IN configurados
     const token = jwt.sign(
       { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol },
-      process.env.JWT_SECRET || 'secreto_temporal_cambiar',
+      process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
     );
 
