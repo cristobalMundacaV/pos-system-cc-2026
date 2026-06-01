@@ -5,30 +5,48 @@ validateEnv();
 
 const app = require('./app');
 const pool = require('./config/database');
+const logger = require('./config/logger');
 
 const PORT = process.env.PORT || 3001;
 
 const server = app.listen(PORT, () => {
-  console.log(`Servidor POS corriendo en http://localhost:${PORT}`);
-  console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(
+    {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+    },
+    'Servidor POS iniciado correctamente'
+  );
 });
 
 const shutdown = async (signal) => {
-  console.log(`\n${signal} recibido. Cerrando servidor de forma controlada...`);
+  logger.info(
+    {
+      signal,
+    },
+    'Señal recibida. Cerrando servidor de forma controlada'
+  );
 
   server.close(async () => {
     try {
       await pool.end();
-      console.log('Pool de PostgreSQL cerrado correctamente.');
+
+      logger.info('Pool de PostgreSQL cerrado correctamente.');
       process.exit(0);
     } catch (err) {
-      console.error('Error cerrando pool de PostgreSQL:', err.message);
+      logger.error(
+        {
+          err,
+        },
+        'Error cerrando pool de PostgreSQL'
+      );
+
       process.exit(1);
     }
   });
 
   setTimeout(() => {
-    console.error('Cierre forzado por timeout.');
+    logger.error('Cierre forzado por timeout.');
     process.exit(1);
   }, 10000).unref();
 };
@@ -37,10 +55,21 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 process.on('unhandledRejection', (reason) => {
-  console.error('Promesa rechazada no controlada:', reason);
+  logger.error(
+    {
+      reason,
+    },
+    'Promesa rechazada no controlada'
+  );
 });
 
 process.on('uncaughtException', (err) => {
-  console.error('Excepción no controlada:', err);
+  logger.error(
+    {
+      err,
+    },
+    'Excepción no controlada'
+  );
+
   shutdown('uncaughtException');
 });

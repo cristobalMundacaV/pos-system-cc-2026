@@ -15,6 +15,9 @@ const evalRoutes     = require('./routes/eval');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const app = express();
+const pinoHttp = require('pino-http');
+const logger = require('./config/logger');
+const { metricsMiddleware, metricsHandler } = require('./middleware/metrics');
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 // ✅ SEGURIDAD: CORS restringido a origen específico
@@ -32,6 +35,12 @@ app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
+
+app.use(pinoHttp({
+  logger: logger
+}));
+
+app.use(metricsMiddleware);
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -129,13 +138,25 @@ app.get('/ready', async (_req, res) => {
   }
 });
 
+app.get('/metrics', metricsHandler);
+
 // ─── MANEJO DE ERRORES GLOBAL ────────────────────────────────────────────────
 // TODO: Reemplazar console.error con logging estructurado (Winston, Pino, etc.)
 //       e integrar con servicio de monitoreo (CloudWatch, Datadog, Sentry, etc.)
 // eslint-disable-next-line no-unused-vars
-app.use((err, _req, res, _next) => {
-  console.error('[ERROR]', err.stack);
-  res.status(err.status || 500).json({ error: err.message || 'Error interno del servidor' });
+// ─── MANEJO DE ERRORES GLOBAL ────────────────────────────────────────────────
+app.use((err, req, res, _next) => {
+  req.log.error({
+    err,
+    path: req.originalUrl,
+    method: req.method,
+  }, 'Error no controlado');
+
+  res.status(err.status || 500).json({
+    error: process.env.NODE_ENV === 'production'
+      ? 'Error interno del servidor'
+      : err.message || 'Error interno del servidor',
+  });
 });
 
 module.exports = app;
