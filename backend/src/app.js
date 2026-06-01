@@ -24,7 +24,9 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
 app.use(cors({
   origin: process.env.FRONTEND_URL,
@@ -49,7 +51,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // ─── ARCHIVOS ESTÁTICOS (imágenes) ───────────────────────────────────────────
 // TODO: Eliminar cuando se migre a almacenamiento en la nube (S3, GCS, etc.)
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+if ((process.env.STORAGE_DRIVER || 'local') === 'local') {
+  app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+}
 
 // ─── HEALTH CHECK ────────────────────────────────────────────────────────────
 // ✅ DISPONIBILIDAD: Endpoint requerido para Load Balancers, ECS, Kubernetes, etc.
