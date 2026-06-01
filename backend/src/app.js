@@ -14,7 +14,6 @@ const userRoutes     = require('./routes/users');
 const evalRoutes     = require('./routes/eval');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-
 const app = express();
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
@@ -92,6 +91,39 @@ app.use('/api/sales',      saleRoutes);
 app.use('/api/reports',    reportRoutes);
 app.use('/api/users',      userRoutes);
 app.use('/api/eval',       evalRoutes);  // Ruta de evaluación docente (requiere EVAL_SECRET)
+
+// ─── HEALTH CHECKS ────────────────────────────────────────────────────────────
+// Liveness: indica que el proceso Node está vivo.
+app.get('/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'pos-backend',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Readiness: indica que la API está lista y puede comunicarse con PostgreSQL.
+app.get('/ready', async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+
+    res.json({
+      status: 'ready',
+      service: 'pos-backend',
+      db: 'ok',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'not_ready',
+      service: 'pos-backend',
+      db: 'unreachable',
+      error: process.env.NODE_ENV === 'production' ? undefined : err.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
 
 // ─── MANEJO DE ERRORES GLOBAL ────────────────────────────────────────────────
 // TODO: Reemplazar console.error con logging estructurado (Winston, Pino, etc.)
