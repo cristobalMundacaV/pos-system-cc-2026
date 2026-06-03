@@ -5,6 +5,8 @@ pipeline {
         COMPOSE_PROJECT_NAME = 'pos-system'
         POSTGRES_PASSWORD = credentials('postgres-password')
         JWT_SECRET = credentials('jwt-secret')
+        AZURE_STORAGE_CONNECTION_STRING = credentials('azure-storage-connection-string')
+        AZURE_STORAGE_PUBLIC_URL = credentials('azure-storage-public-url')
     }
 
     stages {
@@ -21,6 +23,8 @@ pipeline {
 
                   printf 'POSTGRES_PASSWORD=%s\\n' "$POSTGRES_PASSWORD" > .env.production
                   printf 'JWT_SECRET=%s\\n' "$JWT_SECRET" >> .env.production
+                  printf 'AZURE_STORAGE_CONNECTION_STRING=%s\\n' "$AZURE_STORAGE_CONNECTION_STRING" >> .env.production
+                  printf 'AZURE_STORAGE_PUBLIC_URL=%s\\n' "$AZURE_STORAGE_PUBLIC_URL" >> .env.production
 
                   chmod 600 .env.production
 
@@ -41,6 +45,8 @@ pipeline {
                   echo "Validando formato de .env.production..."
                   grep -q '^POSTGRES_PASSWORD=' .env.production
                   grep -q '^JWT_SECRET=' .env.production
+                  grep -q '^AZURE_STORAGE_CONNECTION_STRING=' .env.production
+                  grep -q '^AZURE_STORAGE_PUBLIC_URL=' .env.production
 
                   docker --version
                   docker compose version
