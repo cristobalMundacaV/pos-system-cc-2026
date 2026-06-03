@@ -22,3 +22,21 @@ out/
 # OS
 .DS_Store
 Thumbs.db
+
+# Terraform
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfvars
+crash.log
+crash.*.log
+
+# SSH / keys
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+pos-system-azure
+pos-system-azure.pub

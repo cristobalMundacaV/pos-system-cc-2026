@@ -1,241 +1,413 @@
-# Sistema POS — Evaluación de Módulo Cloud Computing
+# POS System CC 2026
 
-> **Instituto Profesional Virginia Gómez — 4° año Ingeniería (E) en Computación e Informática**
-> Prof. Patricio Balboa
+Sistema POS recibido para la evaluacion de Cloud Computing. Este README esta enfocado en levantar, configurar y desplegar la aplicacion sin tener que reconstruir el contexto original del proyecto.
 
-Sistema de Punto de Venta (POS) base para pymes chilenas. Esta aplicación es el **punto de partida monolítico** que cada equipo debe migrar a una arquitectura cloud moderna, resiliente y de alta disponibilidad.
+La aplicacion esta separada en:
 
----
+- `frontend/`: Next.js 14.
+- `backend/`: API REST con Node.js, Express y JWT.
+- `database/`: scripts SQL para schema, seed y usuarios iniciales.
+- `infra/terraform/`: infraestructura base en Azure.
+- `docker-compose.yml`: ejecucion local con contenedores.
+- `docker-compose.prod.yml`: despliegue productivo con Docker Compose.
+- `Jenkinsfile`: pipeline CI/CD para construir y desplegar.
 
-## Stack tecnológico base
+## Resultado rapido
 
-| Capa          | Tecnología                      |
-|---------------|--------------------------------|
-| Frontend      | Next.js 14 (React, App Router)  |
-| Backend       | Node.js 18 + Express            |
-| Base de Datos | PostgreSQL 14+                  |
-| Autenticación | JWT con roles (admin / cajero)  |
-
----
-
-## Módulos del sistema
-
-| Módulo | Descripción | Acceso |
-|--------|-------------|--------|
-| **Dashboard** | KPIs: ventas del día, del mes, productos y clientes | Admin |
-| **POS** | Carrito de compra, selección de cliente y método de pago | Admin / Cajero |
-| **Productos** | CRUD con subida de imágenes y control de stock | Admin / Cajero |
-| **Categorías** | Gestión de categorías de productos | Admin / Cajero |
-| **Clientes** | CRUD con RUT chileno | Admin / Cajero |
-| **Ventas** | Historial; anulación solo disponible para Admin | Admin / Cajero |
-| **Reportes** | Gráficos de ventas por día, top productos y métodos de pago | Admin |
-| **Usuarios** | Gestión de usuarios y roles | Admin |
-
----
-
-## Estructura del proyecto
-
-```
-pos-system/
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   │   └── database.js          # Conexión PostgreSQL
-│   │   ├── controllers/             # Lógica de negocio
-│   │   │   ├── authController.js
-│   │   │   ├── productController.js
-│   │   │   ├── categoryController.js
-│   │   │   ├── clientController.js
-│   │   │   ├── saleController.js
-│   │   │   ├── reportController.js
-│   │   │   └── userController.js
-│   │   ├── middleware/
-│   │   │   ├── auth.js              # JWT activo + control de roles
-│   │   │   └── upload.js            # Multer — almacenamiento local
-│   │   ├── routes/                  # Definición de rutas REST
-│   │   ├── app.js                   # Express app
-│   │   └── server.js
-│   ├── uploads/                     # ⚠️ Imágenes en disco local — migrar a S3
-│   ├── .env.example
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── login/
-│   │   │   └── (dashboard)/         # Layout con sidebar
-│   │   │       ├── dashboard/
-│   │   │       ├── pos/
-│   │   │       ├── products/
-│   │   │       ├── categories/
-│   │   │       ├── clients/
-│   │   │       ├── sales/
-│   │   │       ├── reports/
-│   │   │       └── users/
-│   │   ├── components/
-│   │   │   └── Sidebar.jsx          # Navegación filtrada por rol
-│   │   └── lib/
-│   │       ├── api.js               # Axios con interceptor JWT
-│   │       └── utils.js             # Helpers (formatCLP, formatDate)
-│   ├── jsconfig.json
-│   ├── .env.local.example
-│   └── package.json
-├── database/
-│   ├── schema.sql                   # DDL completo
-│   ├── seed.sql                     # Datos de prueba
-│   └── create-admin.js              # Script para crear usuarios iniciales
-└── README.md
-```
-
----
-
-## Instalación y ejecución local
-
-### Requisitos previos
-- Node.js 18+
-- PostgreSQL 14+
-- npm
-
-> Cada equipo elige cómo desplegar la aplicación: máquinas virtuales, contenedores, PaaS, etc. Las instrucciones siguientes corresponden a la ejecución directa con Node.js.
-
-### 1 — Base de datos
+Para levantar todo localmente con Docker:
 
 ```bash
-# Crear la base de datos
-createdb pos_db
-
-# Ejecutar el schema
-psql -d pos_db -f database/schema.sql
-
-# Cargar datos de prueba
-psql -d pos_db -f database/seed.sql
+docker compose up -d --build
 ```
 
-### 2 — Backend
+Luego abrir:
 
-```bash
-cd backend
+- Frontend: http://localhost:3000
+- Backend: http://localhost:3001
+- Health check: http://localhost:3001/health
+- Readiness check: http://localhost:3001/ready
+- Metricas: http://localhost:3001/metrics
 
-# Instalar dependencias
-npm install
+Credenciales iniciales:
 
-# Configurar variables de entorno
-cp .env.example .env
-# Editar .env con tus credenciales de PostgreSQL
-
-# Crear usuarios iniciales (admin y cajero)
-node ../database/create-admin.js
-
-# Iniciar el servidor (desarrollo)
-npm run dev
-```
-
-El backend queda disponible en `http://localhost:3001`
-
-### 3 — Frontend
-
-```bash
-cd frontend
-
-# Instalar dependencias
-npm install
-
-# Configurar variables de entorno
-cp .env.local.example .env.local
-
-# Iniciar el servidor (desarrollo)
-npm run dev
-```
-
-El frontend queda disponible en `http://localhost:3000`
-
-### Credenciales por defecto
-
-| Rol | Email | Contraseña |
-|-----|-------|------------|
+| Rol | Email | Password |
+| --- | --- | --- |
 | Administrador | `admin@pos.cl` | `admin123` |
 | Cajero | `cajero@pos.cl` | `cajero123` |
 
----
+## Requisitos
 
-## API Endpoints
+Para despliegue local:
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `POST` | `/api/auth/login` | Iniciar sesión |
-| `GET`  | `/api/auth/me` | Perfil del usuario autenticado |
-| `GET`  | `/api/products` | Listar productos (filtros: `search`, `categoria_id`) |
-| `POST` | `/api/products` | Crear producto (multipart/form-data) |
-| `PUT`  | `/api/products/:id` | Actualizar producto |
-| `DELETE` | `/api/products/:id` | Soft-delete producto |
-| `GET`  | `/api/categories` | Listar categorías |
-| `POST` | `/api/categories` | Crear categoría |
-| `PUT`  | `/api/categories/:id` | Actualizar categoría |
-| `GET`  | `/api/clients` | Listar clientes (filtro: `search`) |
-| `POST` | `/api/clients` | Crear cliente |
-| `PUT`  | `/api/clients/:id` | Actualizar cliente |
-| `GET`  | `/api/sales` | Listar ventas |
-| `GET`  | `/api/sales/:id` | Detalle de venta con items |
-| `POST` | `/api/sales` | Crear venta (descuenta stock, transaccional) |
-| `PUT`  | `/api/sales/:id/cancel` | Anular venta (repone stock) |
-| `GET`  | `/api/reports/summary` | KPIs del dashboard |
-| `GET`  | `/api/reports/sales-by-day` | Ventas por día (param: `days`) |
-| `GET`  | `/api/reports/top-products` | Top productos (param: `limit`) |
-| `GET`  | `/api/reports/sales-by-payment` | Distribución por método de pago |
-| `GET`  | `/api/users` | Listar usuarios |
-| `POST` | `/api/users` | Crear usuario |
-| `PUT`  | `/api/users/:id` | Actualizar usuario |
-| `DELETE` | `/api/users/:id` | Desactivar usuario |
+- Docker
+- Docker Compose
 
----
+Para desarrollo manual:
 
-## ⚠️ Limitaciones conocidas — TODO para los equipos
+- Node.js 20 recomendado
+- npm
+- PostgreSQL 14+
 
-Este sistema fue desarrollado **intencionalmente** con las siguientes limitaciones que representan los desafíos típicos de un monolito sin preparación cloud. Identificarlas, justificarlas y resolverlas en la arquitectura cloud es parte central de la evaluación.
+Para infraestructura:
 
-### Seguridad
-- [ ] **Credenciales con fallback hardcodeado** — Si no existe `.env`, el código usa `postgres/postgres`. Ver `backend/src/config/database.js`
-- [ ] **CORS permisivo** — `app.use(cors())` acepta cualquier origen. Ver `backend/src/app.js`
-- [ ] **Sin validación de inputs** — Los controllers no validan tipos ni rangos (express-validator está instalado pero sin usar)
-- [ ] **Sin rate limiting** — La API no tiene límite de peticiones por IP
-- [ ] **Token en localStorage** — Vulnerable a XSS; en producción usar cookies HttpOnly
+- Terraform 1.6+
+- Azure CLI autenticado
+- Llave SSH publica para la VM
 
-### Disponibilidad
-- [ ] **Sin health check** — No existe `GET /health`; necesario para ALB, ECS, Kubernetes
-- [ ] **Sin SSL en BD** — La conexión a PostgreSQL no usa TLS (requerido en RDS, Cloud SQL, etc.)
-- [ ] **Sin clustering** — Un solo proceso Node.js; sin PM2, ECS tasks o pods de Kubernetes
-- [ ] **Sin reintentos de conexión** — Si la BD se reinicia, el proceso muere
+## Despliegue local con Docker Compose
 
-### Almacenamiento
-- [ ] **Imágenes en disco local** — `backend/uploads/` es incompatible con múltiples instancias. Migrar a S3 / GCS / Azure Blob + CDN
+El archivo `docker-compose.yml` levanta tres servicios:
 
-### Observabilidad
-- [ ] **Solo console.log** — Sin logging estructurado (Winston, Pino); no integrable con CloudWatch, Stackdriver, etc.
-- [ ] **Sin métricas** — Sin instrumentación para Prometheus/Grafana o herramientas cloud equivalentes
+- `postgres`: PostgreSQL 14 en el puerto local `5433`.
+- `backend`: API en `http://localhost:3001`.
+- `frontend`: Next.js en `http://localhost:3000`.
 
-### Configuración
-- [ ] **Sin secrets management** — No integra AWS Secrets Manager, Azure Key Vault ni GCP Secret Manager
-- [ ] **Sin variables de entorno para producción** — Faltan variables críticas (ver `.env.example`)
+Ejecutar:
 
----
-
-## Esquema de base de datos
-
-```
-roles ─────────── usuarios
-                     │
-categorias ─── productos
-                     │
-clientes ───── ventas ──── detalle_ventas ── productos
-                 │
-               usuarios
+```bash
+docker compose up -d --build
 ```
 
----
+Ver estado:
 
-## Entregables de la evaluación (recordatorio)
+```bash
+docker compose ps
+```
 
-- [ ] Diagrama de arquitectura cloud detallado
-- [ ] Repositorio GitHub con todo el código de implementación
-- [ ] URL funcional del sistema desplegado
-- [ ] Bitácora de avances (Scrum board / Trello)
-- [ ] Presentación: problemática → arquitectura propuesta → decisiones técnicas → demo
+Ver logs:
+
+```bash
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f postgres
+```
+
+Detener:
+
+```bash
+docker compose down
+```
+
+Detener y borrar volumenes de base de datos y uploads:
+
+```bash
+docker compose down -v
+```
+
+Importante: al borrar volumenes se pierde la informacion de PostgreSQL y las imagenes subidas.
+
+## Base de datos
+
+En Docker, PostgreSQL se inicializa automaticamente con:
+
+- `database/schema.sql`
+- `database/seed.sql`
+
+Los usuarios iniciales se crean con:
+
+```bash
+docker compose exec backend node ../database/create-admin.js
+```
+
+El script crea o actualiza:
+
+- `admin@pos.cl` / `admin123`
+- `cajero@pos.cl` / `cajero123`
+
+## Variables de entorno
+
+### Backend
+
+Ejemplo disponible en:
+
+```bash
+backend/.env.example
+```
+
+Variables relevantes:
+
+| Variable | Uso |
+| --- | --- |
+| `PORT` | Puerto de la API. Por defecto `3001`. |
+| `NODE_ENV` | `development` o `production`. |
+| `DB_HOST` | Host de PostgreSQL. En Compose: `postgres`. |
+| `DB_PORT` | Puerto de PostgreSQL. En Compose interno: `5432`. |
+| `DB_NAME` | Nombre de la base de datos. |
+| `DB_USER` | Usuario de la base de datos. |
+| `DB_PASSWORD` | Password de la base de datos. |
+| `DB_SSL` | Usar SSL hacia PostgreSQL. |
+| `JWT_SECRET` | Secreto para firmar tokens JWT. Debe cambiarse en produccion. |
+| `JWT_EXPIRES_IN` | Duracion del token. |
+| `FRONTEND_URL` | Origen permitido para CORS. |
+| `STORAGE_DRIVER` | `local` o `s3`. |
+| `UPLOAD_MAX_SIZE_MB` | Tamano maximo de imagenes. |
+| `LOG_LEVEL` | Nivel de logs. |
+
+### Frontend
+
+Ejemplo disponible en:
+
+```bash
+frontend/.env.local.example
+```
+
+Variable principal:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+Esta URL se usa en build time. Si cambia el dominio del backend, se debe reconstruir la imagen del frontend.
+
+## Despliegue productivo con Docker Compose
+
+El archivo `docker-compose.prod.yml` esta pensado para ejecutarse en un servidor Linux. A diferencia del Compose local:
+
+- No expone PostgreSQL hacia fuera.
+- Expone backend y frontend solo en `127.0.0.1`.
+- Espera un proxy reverso externo para publicar HTTP/HTTPS.
+- Usa variables desde `.env.production`.
+
+Crear `.env.production` en la raiz del proyecto:
+
+```bash
+POSTGRES_PASSWORD=cambiar_password_postgres
+JWT_SECRET=cambiar_por_un_secreto_largo_y_seguro
+```
+
+Construir imagenes:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml build
+```
+
+Levantar servicios:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d
+```
+
+Crear usuarios iniciales:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml exec -T backend node ../database/create-admin.js
+```
+
+Validar:
+
+```bash
+curl -fsS http://127.0.0.1:3001/health
+curl -fsS http://127.0.0.1:3001/ready
+curl -fsSI http://127.0.0.1:3000
+```
+
+## Proxy reverso y dominio
+
+En produccion, `docker-compose.prod.yml` deja los servicios escuchando solo localmente:
+
+- Frontend: `127.0.0.1:3000`
+- Backend: `127.0.0.1:3001`
+
+Por eso se necesita un proxy reverso, por ejemplo Nginx o Caddy, que reciba trafico en `80/443` y lo envie a esos puertos internos.
+
+El compose productivo actual esta configurado para el dominio:
+
+```bash
+https://pos.mundacasolutions.com
+```
+
+Si se usa otro dominio, ajustar:
+
+- `FRONTEND_URL` en `docker-compose.prod.yml`.
+- `NEXT_PUBLIC_API_URL` en los argumentos de build del frontend.
+- El health check publico del `Jenkinsfile`, si se usa Jenkins.
+
+## Jenkins
+
+El `Jenkinsfile` ejecuta este flujo:
+
+1. Checkout del repositorio.
+2. Validacion de archivos requeridos.
+3. Build de imagenes con `docker-compose.prod.yml`.
+4. Deploy con `docker compose up -d --force-recreate`.
+5. Creacion de usuarios iniciales.
+6. Health checks locales y validacion del dominio publico.
+
+Antes de usar Jenkins, asegurar que el agente tenga:
+
+- Docker instalado.
+- Docker Compose disponible.
+- Acceso al repositorio.
+- Archivo `.env.production` en el workspace o inyectado por Jenkins.
+- Permisos para ejecutar contenedores.
+
+Comandos equivalentes al pipeline:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml build --no-cache backend frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --force-recreate
+docker compose --env-file .env.production -f docker-compose.prod.yml exec -T backend node ../database/create-admin.js
+```
+
+## Terraform en Azure
+
+La carpeta `infra/terraform/` crea una base de infraestructura en Azure:
+
+- Resource Group.
+- Virtual Network.
+- Subnet.
+- Public IP para VM.
+- Network Security Group con `22`, `80` y `443`.
+- VM Linux Ubuntu 22.04.
+- Instalacion inicial de Docker en la VM.
+- Load Balancer con reglas para `80` y `443`.
+
+Ejecutar:
+
+```bash
+cd infra/terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+Variables principales:
+
+| Variable | Default |
+| --- | --- |
+| `project_name` | `pos-system` |
+| `resource_group_name` | `pos-system-rg` |
+| `location` | `eastus2` |
+| `vm_size` | `Standard_D2s_v3` |
+| `admin_username` | `azureuser` |
+| `ssh_public_key_path` | `C:/Users/EliteBook/.ssh/pos-system-azure.pub` |
+| `ssh_source_address` | `*` |
+
+Despues del `apply`, Terraform muestra outputs con IP publica y comando SSH.
+
+Nota importante: el NSG abre `80` y `443`, no `3000` ni `3001`. Para acceso publico se debe publicar la app mediante proxy reverso en `80/443`.
+
+## Despliegue manual en una VM
+
+Flujo recomendado en una VM Ubuntu:
+
+```bash
+git clone <url-del-repositorio>
+cd pos-system-cc-2026
+```
+
+Crear `.env.production`:
+
+```bash
+POSTGRES_PASSWORD=cambiar_password_postgres
+JWT_SECRET=cambiar_por_un_secreto_largo_y_seguro
+```
+
+Levantar:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+docker compose --env-file .env.production -f docker-compose.prod.yml exec -T backend node ../database/create-admin.js
+```
+
+Validar localmente:
+
+```bash
+curl -fsS http://127.0.0.1:3001/ready
+curl -fsSI http://127.0.0.1:3000
+```
+
+Configurar un proxy reverso para publicar la app en el dominio.
+
+## Desarrollo sin Docker
+
+### Backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+npm run dev
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.local.example .env.local
+npm run dev
+```
+
+### PostgreSQL local
+
+```bash
+createdb pos_db
+psql -d pos_db -f database/schema.sql
+psql -d pos_db -f database/seed.sql
+node database/create-admin.js
+```
+
+## Endpoints utiles
+
+| Metodo | Ruta | Descripcion |
+| --- | --- | --- |
+| `GET` | `/health` | Liveness del backend. |
+| `GET` | `/ready` | Readiness con verificacion de PostgreSQL. |
+| `GET` | `/metrics` | Metricas Prometheus. |
+| `POST` | `/api/auth/login` | Login. |
+| `GET` | `/api/products` | Productos. |
+| `GET` | `/api/categories` | Categorias. |
+| `GET` | `/api/clients` | Clientes. |
+| `GET` | `/api/sales` | Ventas. |
+| `GET` | `/api/reports/summary` | Resumen dashboard. |
+| `GET` | `/api/users` | Usuarios. |
+
+## Persistencia
+
+Docker usa volumenes nombrados:
+
+- `postgres_data`: datos de PostgreSQL.
+- `backend_uploads`: imagenes subidas por la API cuando `STORAGE_DRIVER=local`.
+
+En despliegues con mas de una instancia, `STORAGE_DRIVER=local` no es recomendable. El backend soporta `STORAGE_DRIVER=s3`, usando:
+
+```bash
+STORAGE_DRIVER=s3
+AWS_BUCKET_NAME=
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+```
+
+## Checklist de despliegue
+
+- Cambiar `POSTGRES_PASSWORD`.
+- Cambiar `JWT_SECRET`.
+- Configurar dominio real en `FRONTEND_URL`.
+- Configurar `NEXT_PUBLIC_API_URL` antes de construir el frontend.
+- Usar HTTPS en produccion.
+- Confirmar que `/health` y `/ready` respondan correctamente.
+- Revisar logs de backend y frontend.
+- Confirmar que los volumenes persisten entre reinicios.
+- Configurar backup de PostgreSQL.
+- Usar almacenamiento externo para imagenes si habra multiples instancias.
+
+## Comandos de diagnostico
+
+```bash
+docker compose ps
+docker compose logs --tail=80 backend
+docker compose logs --tail=80 frontend
+docker compose logs --tail=80 postgres
+docker compose exec postgres psql -U postgres -d pos_db
+curl -fsS http://localhost:3001/ready
+```
+
+## Observaciones del estado actual
+
+- El proyecto ya trae health checks, readiness, logging con Pino, rate limit, Helmet y endpoint de metricas.
+- El README anterior tenia secciones desactualizadas respecto al codigo actual.
+- El despliegue productivo depende de un proxy reverso que no esta incluido en el repositorio.
+- Terraform crea infraestructura base, pero no copia ni ejecuta automaticamente la aplicacion en la VM.
+- Los archivos `terraform.tfstate` estan dentro del repo; en un entorno real deberian manejarse con backend remoto y no versionarse.
