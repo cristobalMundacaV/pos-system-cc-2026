@@ -17,11 +17,14 @@ pipeline {
     stage('Prepare production env') {
         steps {
             sh '''
-            cat > .env.production <<EOF
-    POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    JWT_SECRET=${JWT_SECRET}
-    EOF
+            rm -f .env.production
+
+            printf "POSTGRES_PASSWORD=%s\\nJWT_SECRET=%s\\n" "$POSTGRES_PASSWORD" "$JWT_SECRET" > .env.production
+
             chmod 600 .env.production
+
+            echo "Archivo .env.production generado correctamente:"
+            sed 's/=.*/=****/g' .env.production
             '''
         }
     }
@@ -30,6 +33,7 @@ pipeline {
             steps {
                 sh '''
                   test -f docker-compose.prod.yml
+                  test -f .env.production
                   test -f backend/Dockerfile
                   test -f frontend/Dockerfile
                   docker --version
