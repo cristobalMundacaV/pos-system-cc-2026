@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         COMPOSE_PROJECT_NAME = 'pos-system'
+        POSTGRES_PASSWORD = credentials('postgres-password')
+        JWT_SECRET = credentials('jwt-secret')
     }
 
     stages {
@@ -11,6 +13,18 @@ pipeline {
                 checkout scm
             }
         }
+
+    stage('Prepare production env') {
+        steps {
+            sh '''
+            cat > .env.production <<EOF
+    POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    JWT_SECRET=${JWT_SECRET}
+    EOF
+            chmod 600 .env.production
+            '''
+        }
+    }
 
         stage('Validate files') {
             steps {
