@@ -14,20 +14,21 @@ pipeline {
             }
         }
 
-    stage('Prepare production env') {
-        steps {
-            sh '''
-            rm -f .env.production
+        stage('Prepare production env') {
+            steps {
+                sh '''
+                  rm -f .env.production
 
-            printf "POSTGRES_PASSWORD=%s\\nJWT_SECRET=%s\\n" "$POSTGRES_PASSWORD" "$JWT_SECRET" > .env.production
+                  printf 'POSTGRES_PASSWORD=%s\\n' "$POSTGRES_PASSWORD" > .env.production
+                  printf 'JWT_SECRET=%s\\n' "$JWT_SECRET" >> .env.production
 
-            chmod 600 .env.production
+                  chmod 600 .env.production
 
-            echo "Archivo .env.production generado correctamente:"
-            sed 's/=.*/=****/g' .env.production
-            '''
+                  echo "Archivo .env.production generado:"
+                  sed 's/=.*/=****/g' .env.production
+                '''
+            }
         }
-    }
 
         stage('Validate files') {
             steps {
@@ -36,6 +37,11 @@ pipeline {
                   test -f .env.production
                   test -f backend/Dockerfile
                   test -f frontend/Dockerfile
+
+                  echo "Validando formato de .env.production..."
+                  grep -q '^POSTGRES_PASSWORD=' .env.production
+                  grep -q '^JWT_SECRET=' .env.production
+
                   docker --version
                   docker compose version
                 '''
